@@ -1,0 +1,226 @@
+% Thank Bogdan for this template :-)
+
+\documentclass[12pt]{article}
+%\documentclass[12pt,prb,preprint]{revtex4}
+
+\setlength{\textwidth}{6.5in} % sets width of text to 6.5 in
+\renewcommand{\baselinestretch}{1.5} % double space; {1} for single space
+\textwidth 6.5in % default width = 5.5 in; def margins 1.5 in
+\setlength{\evensidemargin}{0.0 cm}
+\setlength{\oddsidemargin}{0.0 cm} % {1.0 in} shifts text right 1 in
+
+\textheight 8.5 in % sets height of text to 8.5 in
+\topmargin -0.0 in % sets top margin 0.1 in above def (2 in)
+
+
+%------------------
+\title{Reliable Viscosity from Equilibrium Molecular Dynamics Simulations: A Time Decomposition Method}
+\author{Yong Zhang \ and Edward J. Maginn\thanks{Corresponding author. E-mail: ed@nd.edu} \\
+                Department of Chemical and Biomolecular Engineering\\
+                University of Notre Dame\\
+                Notre Dame, Indiana, 46556 USA}
+%\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+%-----------------
+
+
+\date{\today}
+\usepackage[dvips]{graphicx}
+%\usepackage{graphicx}
+\usepackage{overcite}
+\usepackage{longtable}
+\usepackage{supertabular}
+
+\begin{document}
+\pagenumbering{arabic}
+%\baselineskip 0.9 cm
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\begin{abstract}
+
+%\newline
+
+{\bf Keywords:} 
+
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Introduction}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Simulation Procedure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results and Discussions}
+
+{\bf Notes:
+
+FOR CORRELATION TIME CUTOFF: There are two reasons to fit the correlation function at as short as possible.
+One reason is, as shown in the calculated $\sigma$, the standard error increases with the increasing correlation time.Secondly, computationally, it is always prefer to run the simulations shorter as long as the results are reliable.
+
+Experimental deviates.
+There are only four points from simulation, which 
+
+The goal of the current work is not to calculate the viscosities for one or two examples,
+but rather to describe a general method for the calculation of viscosity reliablly.
+However, for the two examples studied in this work,
+the calculated viscosity using the proposed procedure
+do agree with available experimental results reasonable well
+although only the general Amber force field was used,
+which was not optimized for the such calculation.
+If a dedicated force field is used,
+the results are likely further improved.}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Concluding Remarks}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{7 mm}
+{\bf\Large Supporting Information}
+
+
+\vspace{7 mm}
+{\bf\Large Acknowledgment}
+
+This material is based upon work supported by
+the National Science Foundation (NSF) Partnerships for Innovation (PFI) subprogram:
+Building Innovation Capacity (BIC), award number 1237829.
+Computational resources were provided by the Center for Research Computing (CRC) at the University of Notre Dame.
+{\bf JECSR NERSC}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%--------ref---------------
+\newpage
+\clearpage
+
+\bibliographystyle{jpc_new}
+%\bibliographystyle{proteins}
+%\bibliographystyle{achemso}
+%\bibliographystyle{jcp}
+\bibliography{paper}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% tables
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% figures
+
+\newpage
+\clearpage
+{\bf\Large Figure captions}
+\vspace{7 mm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=6.0in]{/pscratch/yzhang19/20-viscosity/15-ethanol/03-nvt/visc-2.eps}
+\caption{Ethanol}
+\label{fig:visc-longtraj}
+\end{center}
+\end{figure}
+
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=6.0in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-3.eps}
+\caption{Ethanol}
+\label{fig:visc-multi}
+\end{center}
+\end{figure}
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-2.eps}
+\vspace {0.2in}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-1.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-3.eps}
+\vspace {0.2in}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-22.eps}
+\caption{Cutoff for fit.}
+\label{fig:cutoff-ethanol}
+\end{center}
+\end{figure}
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-1.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/350/visc-conv-1.eps}
+\caption{Viscosity convergence.}
+\label{fig:visc-conv}
+\end{center}
+\end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-2.eps}
+\caption{Ethanol}
+\label{fig:density-ethanol}
+\end{center}
+\end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-1.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-2.eps}
+\caption{Ethanol}
+\label{fig:visc-ethanol}
+\end{center}
+\end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-1.eps}
+\caption{Bmim-TF2N}
+\label{fig:density-bmim}
+\end{center}
+\end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-1.eps}
+\caption{Top: BMIM-TF2N viscosity extrapolation from simulation data.
+Bottom: BMIM-TF2N viscosity extrapolation from experimental data.}
+\label{fig:visc-bmim}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\end{document}
