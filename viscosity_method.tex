@@ -15,7 +15,7 @@
 
 %------------------
 \title{Reliable Viscosity from Equilibrium Molecular Dynamics Simulations: A Time Decomposition Method}
-\author{Yong Zhang \ and Edward J. Maginn\thanks{Corresponding author. E-mail: ed@nd.edu} \\
+\author{Yong Zhang, Akihito Otani and Edward J. Maginn\thanks{Corresponding author. E-mail: ed@nd.edu} \\
                 Department of Chemical and Biomolecular Engineering\\
                 University of Notre Dame\\
                 Notre Dame, Indiana, 46556 USA}
@@ -40,9 +40,29 @@
 \newpage
 \begin{abstract}
 
-%\newline
+A viscosity calculation method based on Green-Kubo relation
+and equilibrium molecular dynamics simulation was proposed.
+In this method,
+instead of one long trajectory usually used in such calculation,
+multiple trajectories are generated.
+The Green-Kubo relation is applied to each trajectory,
+the averaged running integral as a function of time is fitted to a double exponential function
+with the weighting function derived from the standard deviation of the running integrals.
+Such a weighting function guarantees the accuracy of the fit even at long times,
+avoids the well known long time tail problem.
+In practice, however, to save computational time,
+short correlation time is preferred and
+a cutoff time $t_{cut}$ is suggested,
+which can be determined by the relative values of the running integral and the corresponding standard deviation.
+%The number and length of the independent trajectories can be determined with simple tests.
+All simulation parameters can be determined by following objective standards,
+guarantees the results to be reliable and reproducible.
+The method was demonstrated by applying to relative low viscosity liquid ethanol and 
+relatively high viscosity ionic liquid 1-n-butyl-3-methylimidazolium bis(trifluoromethane-sulfonyl)imide ($[BMIM][Tf_2N]$),
+and found to be robust.
+\newline
 
-{\bf Keywords:} 
+Keywords: Green-Kubo, Ionic Liquids, standard deviation, system size effect
 
 \end{abstract}
 
@@ -50,51 +70,568 @@
 \newpage
 \section{Introduction}
 
+Viscosity is one of the most essential physical properties of a liquid in industrial applications.
+In addition to experimental studies, 
+\cite{Maginn.JPCL.1.3494.2010,	% AHA
+Atilhan.IECR.52.16774.2013,	% high P
+Blahusiak.JCT.72.54.2014,	% mixture
+Dutt.JPCB.118.13244.2014,	% Tau_rot
+Garrett.JPC.Lett.5.1541.2014}	% 2DIR
+different theoretical methods including equilibrium and non-equilibrium molecular dynamics (MD) methods
+have been developed to understand and predict viscosities.
+\cite{
+Cummings.IECR.31.1237.1992,	% review
+Margulis.ACR.40.1097.2007,	% review
+Mu.JML.193.262.2014,		% review
+Hummer.JPCB.108.15873.2004,	% size effect
+Margulis.JPCB.111.4705.2007,	% NEMD
+Maginn.JPCB.111.4867.2007,	% NEMD
+Borodin.JPCB.113.4771.2009,	% NEMD & EMD
+Mejia.JML.186.106.2013,		% CG
+Atilhan.IECR.52.16774.2013,	% eta ~ Eint/Vm
+Llovell.JPCB.117.8159.2013,	% free volume
+Lee.JPCB.118.2712.2014,		% free volume
+Yethiraj.JPCL.5.2670.2014	% SAPT
+}
+Due to its simplicity, 
+the Green-Kubo relation based on equilibrium MD simulations has been a popular method.
+%\cite{}
+
+In the Green-Kubo relation,
+the shear viscosity can be calculated from the integral over time of the pressure tensor autocorrelation function 
+\cite{ComputerSimulationOfLiquids}
+\begin{equation}
+{\eta = {V \over k_B T } \int_0 ^{\infty}{\langle P_{\alpha\beta}(t) \cdot P_{\alpha\beta}(0) \rangle \ dt} }
+\label{eq:gk}
+\end{equation}
+where $V$ is the system volume,
+$k_B$ is the Boltzmann constant,
+$T$ is temperature,
+$P_{\alpha\beta}$ denotes the element $\alpha\beta$ of the pressure tensor.
+Theoretically,
+the pressure tensor autocorrelation function decays to zero at long time limit
+and the integration reaches a constant,
+which corresponds to the calculated shear viscosity.
+In practice, however, 
+due to the well known long time tail in such correlation function,
+\cite{Verlet.PRA.7.1690.1973}
+the integration does not converge to a constant and usually include large errors at long times.
+A calculation example is shown in Figure~\ref{fig:visc-longtraj},
+in which the running integrals using eq~\ref{eq:gk} are calculated from three independent trajectories generated for ethanol at 298 K. 
+Each trajectory is 10 nanosecond (ns) long.
+It can be seen that the three curves start to deviate in less than 100 picosecond (ps)
+and reach dramatically different values at 1 ns.
+
+The statistics in eq~\ref{eq:gk} can be improved by taking averages over the six independent pressure tensor.
+\cite{Evans.JCP.100.541.1994,
+Hess.JCP.116.209.2002}
+The curves shown in Figure~\ref{fig:visc-longtraj} considered such average already.
+Not like self-diffusivity or other dynamic properties,
+viscosity is a collective property,
+the statistics can not be improved by averaging over number of particles.
+A very long trajectory is needed for good statistics.
+Equivalently, an alternative strategy is to run multiple independent trajectories and take the average,
+\cite{Gasser.JCP.136.094501.2012,
+Bala.JCED.59.3061.2014}
+which benefits from the available massive parallel computation facilities and save wall time.
+In Figure~\ref{fig:visc-longtraj},
+the average of the three individual curves are also provided
+and it is smoother than the individual ones,
+especially at short times.
+
+Due to the long time tail,
+the viscosity is usually determined from a short time ``plateau'' region.
+%\cite{ComputerSimulationOfLiquids}
+However, the identify of the plateau region can be arbitrary.
+Sometimes, it is even hard to identify such a region.
+For the curve calculated from one trajectory (traj 1) shown in Figure~\ref{fig:visc-longtraj},
+the region between 100 $\sim$  200 ps might be a plateau region,
+the region around 300 ps can be another option.
+It is even harder to define the plateau region in the other two curves.
+Once a plateau is somehow identified,
+it is still  not clear how to derive the viscosity from this region.
+Different procedures have been reported in the literature.
+One way is to take the value at a chosen cutoff time.
+Zhang and Nie \cite{Nie.PCM.27.164.2000} set the cutoff to the time when the autocorrelation function first reaches zero 
+in their study of liquid iron. 
+Similar idea was also used in an earlier work by Alfe and Gillan \cite{Alfe.PRL.81.5161.1998}
+in the study of liquid aluminum and iron-sulfur alloy.
+However, it has been pointed out that such a definition of cutoff time can be misleading 
+because the zero crossing time is mainly the result of statistical fluctuations
+and depends a lot on the calculation details.
+\cite{Gasser.JCP.136.094501.2012}
+In the study of liquid tin,
+Gasser and coworkers applied a cutoff time of 2ps without rationalization.
+A much longer cutoff time, up to 5 ns, was applied by Mondal and Balasubramanian in their recent study of ionic liquid (IL) systems,
+\cite{Bala.JCED.59.3061.2014}
+which seems to be longest possible time from their correlation function.
+Instead of taking a value at certain point, 
+a probably better alternative is to take the average value over a region in the running integral.
+\cite{Smit.JCP.131.246101.2009,
+Kazandjian.PRE.85.066701.2012}
+However, all these procedures are somewhat arbitrary and
+the results from different procedures can be quite different.
+
+A more systematic way to obtain viscosity from Green-Kubo relation
+is to fit either the pressure tensor autocorrelation function 
+or the running integral in eq~\ref{eq:gk} to a function
+and derive the viscosity at long time limit analytically.
+The Kohlrausch law has been used to fit the autocorrelation function.
+\cite{Zhang.MP.100.2617.2002,
+Meyer.PRE.90.043101.2014}
+To fit the running integral,
+the double exponential function of the form 
+\begin{equation}
+{\eta(t) = A\alpha\tau_1(1-e^{-t/{\tau_1}}) + A(1-\alpha)\tau_2(1-e^{-t/{\tau_2}}) }
+\label{eq:visc_fit}
+\end{equation}
+has been suggested 
+where $A, \alpha, \tau_1 \ and \ \tau_2$ are fitting parameters.
+\cite{Hess.JCP.116.209.2002,
+Rey-Castro.JPC.B.110.14426.2006}
+To reduce the noise at long times,
+Rey-Castro and Vega applied a weighting factor of $1/t^2$ in the fitting.
+\cite{Rey-Castro.JPC.B.110.14426.2006}
+
+
+In spite of these development,
+reliable calculation of viscosity is still a challenging task,
+partly due to the arbitrariness in the procedure and the lack of an objective way to setup the simulation,
+especially for high viscosity liquid where statistics is usually poor within accessible simulation time scale.
+ILs are examples of such liquids.
+ILs are defined as salts with melting points below 100 $^\circ$C.
+Due to their unique properties such as low vapor pressure, large liquid phase range and nonflamibility,
+ILs promises various applications in industry.
+However, ILs are usually more viscous than traditional molecular solvent by 1-2 orders,
+which means augmented cost in transport and limits their usage as solvents.
+
+In the current work, we introduce a time-decomposition method for the reliable calculation of shear viscosity 
+from equilibrium MD simulation.
+The detailed procedure is provided and
+it is expected that if the same procedure is properly followed,
+the results can be easily reproduced and results from different people are directly comparable.
+The procedure was demonstrated by applying to a low viscosity molecular solvent ethanol and relatively high viscosity IL, 
+1-n-butyl-3-methylimidazolium bis(trifluoromethane-sulfonyl)imide ($[BMIM][Tf_2N]$).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simulation Procedure}
+\section{Simulation Procedure and Details}
+
+\subsection{Molecular Dynamics Simulation}
+
+Equilibrium MD simulations were carried out using the LAMMPS package. \cite{lammps}
+For both ethanol and $[BMIM][Tf_2N]$,
+the general Amber force field (GAFF) \cite{Case.JCC.25.1157.2004}
+was used to describe the inter- and intramolecular interactions.
+To derive the partial charges,
+the structure of the ethanol molecule or each isolated ion in $[BMIM][Tf_2N]$ was optimized at the B3LYP/6-311++g(d,p) level
+using the Gaussian 09 package.
+\cite{g09}
+The atomic charges were then derived by fitting the electrostatic potential surface
+using the RESP method.
+\cite{RESP}
+The charges obtained this way are directly used for ethanol.
+For $[BMIM][Tf_2N]$, the charges were uniformly scaled by 0.8 to account for the effect of charge transfer and polarizability.
+\cite{Maginn.JPCB.116.10036.2012}
+The long range electrostatic interactions were calculated using the particle-particle particle-mesh (PPPM) method\cite{pppm}
+with real space cutoff of 12 \AA.
+For all simulations,
+a time step of 1 femtosecond (fs) was used and the periodic boundary conditions were applied in all directions.
+The simulation box was built up by putting molecules randomly in a cubic box using the package Packmol.
+\cite{Martinez.JCC.24.819.2003,
+Martinez.JCC.30.2157.2009}
+The ethanol box contains 1000 molecules and the $[BMIM][Tf_2N]$ system contains 300 ion pairs, respectively.
+The systems were then equilibrated for 2ns in the isothermal-isobaric (NPT) ensemble
+followed by canonical (NVT) ensemble production runs.
+The pressure tensor were saved every 5 fs during the NVT simulation.
+The Nos\'e-Hoover thermostat
+\cite{Nose-Hoover.PRA.31.1695.1985}
+and the extended Lagrangian approach
+\cite{Shinoda.PR.B.69.134103}
+were applied to control the temperature and pressure, respectively.
+Simulations were carried out at five temperatures (283, 298, 303, 323, and 343 K, respectively) for ethanol
+and four temperatures (350, 400, 450 and 500 K, respectively) for $[BMIM][Tf_2N]$.
+The pressure was fixed to be one atmosphere in all constant pressure simulations
+with isotropic volume fluctuations.
+
+
+\subsection{Time-Decomposition Method of Viscosity}
+
+The shear viscosity was calculated by following procedure.
+
+(1) Generate N independent NVT trajectories at a given temperature;
+
+(2) For each trajectory, calculate the shear viscosity based on Green-Kubo relation (eq~\ref{eq:gk});
+
+(3) Calculate the average of the running integrals over N trajectories and the standard deviation,
+which is a function of time:
+\begin{equation}
+{\sigma(t) = \sqrt{ {1 \over {N-1}} \sum_{i=1}^{N} {(\eta(t)_i - \langle \eta(t) \rangle)^2} } }
+\label{eq:std_err}
+\end{equation}
+
+(4) Fit the standard deviation to a power function
+\begin{equation}
+{\sigma(t)=At^b}
+\label{eq:power}
+\end{equation}
+
+(5) Fit the averaged running integral by the double exponential function (eq~\ref{eq:visc_fit}) 
+for the time period up to $t_{cut}$ with the weight $1/t^b$,
+where $b$ is the fitting result from step (4) and $t_{cut}$ can be decided from the relation between $\eta$ and $\sigma(t)$.
+We found that the time when $\sigma(t)$ is about 40\% of the average $\eta$ is a good choice. 
+Take the long time limit of the fitted double exponential function as the calculated viscosity;
+
+(6) Increase N and repeat steps (1)-(5) till the change in the calculated viscosity in step (5) from previous cycle is smaller than a tolerance.
+
+Details of this time-decomposition procedure is described in the next section.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and Discussions}
 
-{\bf Notes:
+Based on the results of the NPT ensemble simulations,
+the density as a function of temperature was calculated for each system.
+The results are shown in Figure~\ref{fig:density} and compared with experimental values.
+For ethanol, the calculated densities were found to be about 2.5\% higher than experimental results.
+For $[BMIM][Tf_2N]$, 
+simulations were carried out at relatively high temperatures for faster dynamics and better sampling.
+The calculated densities at high temperatures were fitted to a linear function and extrapolated to low temperatures.
+As shown in the figure, 
+the agreement with experimental results are almost perfect.
+For both ethanol and $[BMIM][Tf_2N]$, 
+small deviations can be seen between the experimental results.
+Overall, however,
+the calculated densities agree with experimental results very well,
+which is a sign that the applied force fields can describe the systems reasonably well.
 
-FOR CORRELATION TIME CUTOFF: There are two reasons to fit the correlation function at as short as possible.
-One reason is, as shown in the calculated $\sigma$, the standard error increases with the increasing correlation time.Secondly, computationally, it is always prefer to run the simulations shorter as long as the results are reliable.
+\subsection{Viscosity of Ethanol}
 
-Experimental deviates.
-There are only four points from simulation, which 
+\subsubsection{Weighting Function}
 
-The goal of the current work is not to calculate the viscosities for one or two examples,
-but rather to describe a general method for the calculation of viscosity reliablly.
-However, for the two examples studied in this work,
-the calculated viscosity using the proposed procedure
-do agree with available experimental results reasonable well
-although only the general Amber force field was used,
-which was not optimized for the such calculation.
-If a dedicated force field is used,
-the results are likely further improved.}
+In order to calculate the viscosity,
+100 independent trajectories were generated starting from the same configuration but a different random seed for initial velocity assignment.
+Each trajectory is 5 ns long.
+The first ns of each trajectory was considered equilibration and ignored in the viscosity calculation.
+Based on each trajectory, 
+the shear viscosity was calculated based on eq~\ref{eq:gk} 
+and the average at each temperature is provided in Figure~\ref{fig:ethanol-ave} (top panel).
+Different from the noisy curves in Figure~\ref{fig:visc-longtraj},
+the averages are much better behaved.
+In each case, following a sharp increase in short time,
+the running integral reaches a flat region.
+However, even with the average of 100 independent trajectories,
+the random error in the correlation function is not fully canceled out and the curves are not completely flat,
+especially at long times.
+The standard deviation based on eq~\ref{eq:std_err} are calculated and provided in Figure~\ref{fig:ethanol-ave} (bottom panel).
+As expected, the standard deviation increase as the time becomes longer due to the long time tail in the correlation function.
+\cite{Verlet.PRA.7.1690.1973}
+At each temperature,
+the standard deviation can be fit to a power function $\sigma(t) = At^{b}$ (eq~\ref{eq:power}) 
+where $t$ is time, $A$ and $b$ are fitting parameters.
 
+In order to derive viscosity,
+the averaged running integral was fitted to the double exponential function (eq~\ref{eq:visc_fit}).
+\cite{Rey-Castro.JPC.B.110.14426.2006}
+Different from $1/t^2$ used by Rey-Castro and coworkers,
+\cite{Rey-Castro.JPC.B.110.14426.2006}
+the fitting results of the standard deviation $1/t^b$ was used as weighting function in the fit.
+With this weighting function,
+the short time data points that have higher accuracy have more weight in the fitting
+and the less accurate data points at long times have less weight, 
+similar idea applied by Rey-Castro and coworkers.
+\cite{Rey-Castro.JPC.B.110.14426.2006}
+However, we realized that $1/t^2$ weight decays too fast 
+so that for systems with high viscosity, 
+the weight becomes negligible before reaching the plateau region
+and significantly underestimate the viscosity.
+Figure~\ref{fig:t2weight} shows such an example.
+On the other hand, the relatively mild weighting function used here works fine even in very high viscosity cases
+and the way the weighting function is determined guarantees 
+that each data point used in the fit contribute the same error to final results
+even long time data points are included.
+
+\subsubsection{Cutoff Time $t_{cut}$}
+
+In practice, however,
+fitting to relatively short period of time is still preferred for the sake of reducing computational cost.
+Therefore, a parameter $t_{cut}$ is introduced to characterize the upper time limit that the fit is applied to.
+It is found that the time at which the calculated standard deviation $\sigma(t)$ has the value about 40\% of the corresponding viscosity
+(rough average of the flat region in the running integral) is a good choice for $t_{cut}$.
+For example, for the results shown in Figure~\ref{fig:ethanol-ave} (top panel),
+at 298 K, the flat region of the running integral has a value around 1.3 cP,
+40\% of which is about 0.52 cP,
+which corresponds to a $t_{cut} = 700 ps$ based on the $\sigma$ values shown in Figure~\ref{fig:ethanol-ave} (lower panel).
+During the fitting,
+it was found that the running integral fluctuates a lot at very short time due to the fast decay of the correlation function,
+as shown in Figure~\ref{fig:ethanol-2ps}.
+Because of the large weight of this period of time,
+such fluctuation makes the fitting unstable.
+Therefore, the first 2ps of the running integral is ignored in the fitting.
+With these considerations,
+Figure~\ref{fig:ethanol-fit} shows the fitting results of ethanol at 298 K.
+The calculated standard deviation and the corresponding fitting results is provided as inset.
+The $b$ parameter was found to have a value of 0.52,
+which is close to the observation by Danel, Kazandjian and Zerah,
+\cite{Kazandjian.PRE.85.066701.2012}
+who reported that the calculated standard deviation varies roughly like $\sqrt{t}$.
+Based on the double exponential fitting to the running integral with weight of $1/t^{0.52}$,
+the viscosity was found to be 1.318 cP,
+which is close to experimental values $\sim$ 1.1 cP.
+\cite{Jouyban.KJCE.29.812.2012,
+Nain.JML.140.108.2008,
+Bhuiyan.JML.138.139.2008,
+Fonseca.JCED.52.1240.2007,
+Taboas.JCED.51.940.2006,
+Tojo.JCED.49.1590.2004}
+It is worth mentioning that for ethanol at 298 K,
+the $t_{cut}$ value can be as short as 200 ps,
+where $\sigma$ has the value about 20\% of viscosity.
+In this case, the calculated viscosity was found to be 1.312 cP.
+With both $t_{cut}$, the viscosities are within 2\% deviation from the results with $t_{cut}$ = 2000 ps,
+which is the maximum possible time with enough accuracy from the 4ns trajectory
+and corresponds to $\sigma$ value of 70\% of the calculated viscosity.
+These results agree with the fact that the applied weighting function properly
+minimizes the error even when more noisy long time region is included in the fitting.
+
+The viscosities at other temperatures were derived by following the same procedure
+and the results are shown in Figure~\ref{fig:ethanol-visc} (top panel) and compared with available experimental values.
+There are small deviations in the experimental values,
+but overall,
+the agreement between the calculated and experimentally measured viscosities is very well
+especially considering that viscosity is usually a very hard property to calculate.
+At each temperature,
+the b parameters were found to be between 0.41-0.56.
+For comparison, the weighting function $1/t^{0.5}$ was also used to all temperatures 
+and the calculated viscosities agree with those using $1/t^b$ very well
+as shown in the lower panel in Figure~\ref{fig:ethanol-visc}.
+
+\subsubsection{Number of Trajectories}
+
+Above discussion is based on 100 independent trajectories to demonstrate the general calculation procedure.
+Actually, fewer trajectories would be enough to obtain the results
+and the nice thing about the proposed procedure is,
+as described in the previous section,
+that one can always start with a few trajectories and add more when it is necessary until the results are converged.
+The top left panel in Figure~\ref{fig:ethanol-num} shows the cumulative average of up to 100 trajectories.
+The top right panel in the figure shows the corresponding standard deviation.
+The calculated standard deviation at four time points are explicitly provided in the lower left panel of the figure.
+As shown in the plots,
+both the averaged running integral and standard deviation converged with about 30-40 trajectories.
+Following the procedure described above,
+the viscosities as a function of number of trajectories were derived 
+and provided in the lower right panel of Figure~\ref{fig:ethanol-num}.
+With 40 or more trajectories,
+the calculated viscosities were found to be less than 1\% away from each other,
+indicating the convergence of the simulation.
+The results with $1/t^{0.5}$ weight were also provided for comparison,
+which agree with $1/t^b$ weighting function results almost perfectly.
+
+\subsubsection{Trajectory Length}
+
+Not only the number of trajectories can be smaller,
+the length of each trajectory can also be shorter.
+Using only the last 500 ps, 1 ns or 2 ns from the 5 ns trajectories at 298 K,
+the viscosities were calculated and the results are shown in Figure~\ref{fig:ethanol-length}
+and compared with results using 4 ns trajectories.
+As expected, the calculated standard deviation becomes larger when shorter trajectories are used.
+Using the same criteria that the viscosity is about 40\% of standard deviation,
+the cutoff time $t_{cut}$ was found to be 400 ps when 2 ns trajectories were used,
+200 ps when 1 ns trajectories were used, 
+and 90 ps when 500 ps trajectories were used, respectively.
+Using either 1 or 2 ns trajectories,
+as shown in the lower panel of Figure~\ref{fig:ethanol-length},
+the calculated viscosities still converge with 40 trajectories
+although the fluctuations are larger than the results when 4 ns trajectories were used
+(but still within 1-2\% from each other).
+In either case, the results are within 2-3\% deviation from those using 4 ns trajectories.
+It is interesting to note that the results from 1 ns trajectories are lower than 4 ns trajectories results
+whereas results from 2 ns trajectories are higher then 4 ns trajectories results.
+The randomness of the deviation indicates that even 1 ns trajectories are long enough in this case.
+However, with only 500 ps trajectories,
+the running integral does not really reach a flat region (top panel).
+The calculated viscosities do not seem converge either even with 100 trajectories,
+indicating that 500 ps is too short for the calculation of reliable viscosity in this case.
+
+\subsubsection{System Size Effect}
+
+The effect of simulation system size is also studied.
+In addition to the 1000 ethanol molecule box,
+a smaller box with 500 molecules and a bigger box with 1500 molecules were setup
+and simulations were carried out following the same procedure.
+The calculated running integral and standard deviation from 100 trajectories are shown in Figure~\ref{fig:ethanol-boxsize}.
+Both pressure and viscosity are collective properties.
+As the result, the accuracy can not be improved by increasing the system size.
+As shown in the plots,
+the calculated standard deviation are almost the same for the three systems with different sizes.
+The derived viscosities are also very similar, 
+within 1\% from each other,
+consistent with previous reports.
+\cite{Alfe.PRL.81.5161.1998,
+Hummer.JPCB.108.15873.2004,
+Andreussi.JCP.137.044508.2012}
+
+
+
+\subsection{Viscosity of $[BMIM][Tf_2N]$}
+
+The same procedure was applied to $[BMIM][Tf_2N]$,
+which has much higher viscosity than ethanol at room temperature.
+To accelerate the dynamics, 
+the simulations were carried out at high temperatures between 350 and 500 K with 50 K interval.
+Like the case of ethanol,
+100 independent trajectories were generated at each temperature,
+each is 7 ns long at 350 K and 5 ns long at other temperatures.
+The first 1 ns was ignored in each trajectory and the pressure tensor auto-correlation function
+was calculated based on the rest.
+The averaged running integral and the corresponding standard deviation at each temperature
+are shown in Figure~\ref{fig:bmim-ave}.
+The standard deviation were fit to power function $\sigma(t)=A t^b$
+and the parameters $b$ were found to have values between 0.60-0.73,
+slightly higher than those of ethanol.
+Again, the cutoff time $t_{cut}$ was determined by taking the time at which
+the calculated standard deviation is about 40\% of the viscosity value at each temperature.
+The $t_{cut}$ was found to be 1100, 800, 800 and 700 ps at 350, 400, 450 and 500 K, respectively.
+Lower than 40\% could be used at each temperatures as long as the results does not change much.
+For example, at 350 K, 
+with 30\% cutoff,  $t_{cut}$ was found to be 800 ps and the calculated viscosity is only 0.8\% lower.
+But if 20\% is used, the calculated viscosity becomes 6.1\% lower.
+For liquids with lower viscosity such as ethanol discussed above or $[BMIM][Tf_2N]$ at higher temperature,
+lower than 30\% could be used as well.
+For liquids with even higher viscosity, 
+it was found that 40\% is still a good option (results not shown here)
+so it is consistently used in the current work.
+Similar to ethanol,
+large fluctuation was found in the first 2 ps of the running integral (as shown in the bottom panel in Figure~\ref{fig:bmim-ave})
+so the first 2 ps was ignored in the fitting.
+
+The calculated viscosities for $[BMIM][Tf_2N]$ as a function of temperature are shown in Figure~\ref{fig:bmim-visc}.
+To compare with the experimental results at relatively low temperature,
+the calculated viscosities were fitted to the Arrhenius equation
+\begin{equation}
+{\eta = \eta_0 exp(E/(RT))     }
+\label{eq:ARR}
+\end{equation}
+and the Vogel-Tamman-Fulcher (VTF) equation,
+\cite{VTF}
+respectively,
+\begin{equation}
+{\eta = A exp(B/(T-T_0))  }
+\label{eq:VTF}
+\end{equation}
+and extrapolated to experimental temperatures.
+In above equations,
+$\eta_0$, $E$, $A$, $B$ and $T_0$ are fitting parameters and $R$ is ideal gas molar constant.
+As shown in Figure~\ref{fig:bmim-visc} (upper panel),
+using both equations,
+the extrapolated viscosities are systematically higher than experimental results.
+\cite{Gadzuric.JCED.57.1072.2012,
+Katsuta.JCED.55.1588.2010,
+Watanabe.JPCB.110.19593.2006,
+Majer.GC.8.172.2006,
+Watanabe.JPCB.109.6103.2005,
+VanderNoot.JEC.568.167.2004}
+%The results are shown in the upper panel in Figure~\ref{fig:bmim-visc}.
+At high temperatures,
+the results from both Arrhenius and VTF equations are similar 
+and about twice of those from experiments.
+At low temperatures, the deviation from experiments becomes smaller
+and Arrhenius equation results behaves slightly better than VTF equation,
+deviation as small as 20\% is observed at 283 K.
+
+The correlation coefficients of the fitting are 0.9998 for Arrhenius equation and 0.9999 for VTF equation, respectively,
+suggesting reliable fits in both cases.
+However, because there are only four data points to fit two (Arrhenius) or three (VTF) parameters in the equations,
+not mentioning the uncertainty in the calculated results,
+it is very likely that the extrapolated results include large uncertainty.
+So in addition to extrapolate the calculated viscosity to experimental temperatures,
+the experimental data were also fit to above equations (or directly taken from literature when available
+\cite{Gadzuric.JCED.57.1072.2012,
+Katsuta.JCED.55.1588.2010,
+Majer.GC.8.172.2006,
+Watanabe.JPCB.109.6103.2005})
+and extrapolated to simulational temperature range.
+The results are shown in the lower panel in Figure~\ref{fig:bmim-visc}.
+In this case,
+the results from VTF equation are clearly better than those from Arrhenius equation.
+Overlap between calculated and extrapolated experimental results are observed at high temperature,
+where the simulational results are likely more accurate.
+Overall, the simulated viscosities agree reasonably well with experimental measurements.
+
+Similar to the case of ethanol,
+more than enough trajectories (both number and length of trajectories) were generated
+to demonstrate the viscosity calculation of $[BMIM][Tf_2N]$.
+Figure~\ref{fig:bmim-num} shows the calculated viscosities of $[BMIM][Tf_2N]$ as a function of trajectory numbers at 350 K.
+With 30 or more trajectories,
+the calculated viscosity are about 2-3\% deviation from each other,
+slightly larger than the case in ethanol.
+For comparison,
+the weighting function $1/t^{0.5}$ was also applied and the results are shown in the same plot.
+The results using $1/t^{0.5}$ as weighting function are systematically higher than the results using $1/t^b$ by 2-3\%.
+This difference is large relative to the almost perfect agreement in the case of ethanol,
+likely due to the larger $b$ parameters derived for $[BMIM][Tf_2N]$.
+However, considering the deviation from experimental results,
+these differences are negligible.
+At least for test runs before the simulation conditions are optimized,
+$1/t^{0.5}$ weighting function can be used.
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Concluding Remarks}
 
+Equilibrium MD simulation is still a popular technique 
+for the calculation of viscosity due to its simplicity
+and the fact that the generated trajectories can also be used to derive other system properties,
+an advantage over non-equilibrium MD methods.
+However, the method based on Green-Kubo relation has arbitrariness,
+therefore the calculated results can be unreliable and difficult to reproduce.
+In the current work,
+a time-decomposition method was proposed for the calculation of viscosity using the Green-Kubo relation 
+based on equilibrium MD simulations.
+Great details were provided with the hope to setup a objective and standard procedure
+so that the results can be easily judged and reproduced.
+
+The proposed method decomposes one long equilibrium MD trajectory into multiple independent short ones.
+The Green-Kubo relation is applied to each of such short trajectories
+and the averaged running integral is used to derive the viscosity.
+The standard deviation in the individual running integrals is also calculated and fitted to a power function,
+which is used as weighting function in the fit to the double exponential function of the averaged running integral.
+The standard deviation is also used to decide the time range (characterized by $t_{cut}$) 
+during which the running integral is fitted.
+The necessary number of independent trajectories and the length of each trajectory can be easily decided with a few test runs.
+By applying the procedure to ethanol and $[BMIM][Tf_2N]$,
+the calculated results are found not sensitive to the choice of simulation conditions,
+indicating the robustness of the procedure.
+It is worth mentioning that,
+because each trajectory is independent of each other,
+the statistic accuracy of the proposed procedure can be further improved 
+by applying mathematic tricks such as bootstrap method.
+\cite{Bootstrap}
+
+For the two examples discussed in the current work,
+the calculated viscosities agree with experimental measurement reasonably well
+although a general purpose force field (GAFF) was used in the simulation.
+However, it should be understood that the focus in the current work is to demonstrate the viscosity simulation procedure
+rather than to show the accurate results for a few examples.
+Therefore, it is more interesting to compare the calculated results with different options.
+With the proposed procedure,
+the simulation results are likely further improved if a dedicated force field is used.
+\cite{Andreussi.JCP.137.044508.2012,
+Chaban.JPCB.118.10716.2014}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace{7 mm}
-{\bf\Large Supporting Information}
-
-
 \vspace{7 mm}
 {\bf\Large Acknowledgment}
 
 This material is based upon work supported by
-the National Science Foundation (NSF) Partnerships for Innovation (PFI) subprogram:
-Building Innovation Capacity (BIC), award number 1237829.
-Computational resources were provided by the Center for Research Computing (CRC) at the University of Notre Dame.
-{\bf JECSR NERSC}
+the U.S. Department of Energy, Basic Energy Science, Joint Center for Energy Storage Research under Contract No. DE-AC02-06CH11357. 
+Computational resources were provided by the National Energy Research Scientific Computing Center,
+which is supported by the Office of Science of the U.S. Department of Energy under Contract No. DE-AC02-05CH11231,
+and the Center for Research Computing (CRC) at the University of Notre Dame.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -119,66 +656,226 @@ Computational resources were provided by the Center for Research Computing (CRC)
 {\bf\Large Figure captions}
 \vspace{7 mm}
 
+Figure~\ref{fig:visc-longtraj}.
+Example results of viscosity calculations using the Green-Kubo relation 
+based on three independent 10 ns trajectories generated for ethanol at 298 K.
+Due to the well known long time tail in the pressure autocorrelation function,
+the three running integrals deviate in less than 100 ps and end up at significantly different values at 1 ns,
+which makes it very difficult to derive a reliable viscosity from such calculation.
+The average of the three running integral is also provided in the plot, 
+which is much smoother than each individual one.
+
+Figure~\ref{fig:density}.
+Calculated densities as function of temperature and compared with experimental results.
+Upper panel: ethanol, 
+experimental results: 
+Exp. a, ref~\cite{Jouyban.KJCE.29.812.2012};
+Exp. b, ref~\cite{Bhuiyan.JML.138.139.2008};
+Exp. c, ref~\cite{Fonseca.JCED.52.1240.2007};
+Exp. d, ref~\cite{Taboas.JCED.51.940.2006};
+Exp. e, ref~\cite{Tojo.JCED.49.1590.2004}.
+Lower panel: $[BMIM][Tf_2N]$,
+experimental results: 
+Exp. a, ref~\cite{Gadzuric.JCED.57.1072.2012};
+Exp. b, ref~\cite{Katsuta.JCED.55.1588.2010};
+Exp. c, ref~\cite{Watanabe.JPCB.110.19593.2006};
+Exp. d, ref~\cite{Majer.GC.8.172.2006};
+Exp. e, ref~\cite{Heintz.JCED.53.596.2008};
+Exp. f, ref~\cite{Husson.JCED.52.2204.2007}.
+The calculated densities at high temperature were fitted to a linear function and extrapolated to lower experimental temperature range
+(shown as dotted line).
+For both ethanol and $[BMIM][Tf_2N]$,
+the calculated densities agree with experimental results very well.
+
+
+Figure~\ref{fig:ethanol-ave}.
+The calculated averaged running integral (eq~\ref{eq:gk})
+and standard deviation (eq~\ref{eq:std_err}) 
+from 100 independent 5 ns long equilibrium MD trajectories for ethanol at different temperatures.
+
+Figure~\ref{fig:t2weight}.
+Example results of fitting the running integral to the double exponential function (eq~\ref{eq:visc_fit}) with a $1/t^2$ weight.
+The running integral is averaged over 100 independent trajectories generated for $[BMIM][Tf_2N]$ at 350 K,
+each trajectory is 7 ns long.
+The weighting function decays too fast and the fitting result significantly underestimates the contribution from long time scales.
+A weighting function of the form $1/t^b$ is suggested in this work,
+where $b$ is derived by fitting the calculated standard deviation to a power function $\sigma(t) = Ae^b$,
+which was found to work well even for high viscosity liquid.
+
+Figure~\ref{fig:ethanol-2ps}.
+The large fluctuation at very short time in the calculated running integral of ethanol.
+Each curve is an average over 100 independent ones.
+The same fluctuation is also seen in each individual curve (not shown).
+This fluctuation behavior makes the fitting unstable due to the heavy weight in this time range.
+The first 2 ps of the running integral was therefore ignored in the fitting.
+
+Figure~\ref{fig:ethanol-fit}.
+The fitting results of the averaged running integral to the double exponential function (eq~\ref{eq:visc_fit}) with $1/t^b$ weight.
+The inset shows the fitting results of the calculated standard deviation to the power function $\sigma(t) = Ae^b$.
+The parameter $t_{cut}$ was found to be 700 ps in this case
+which is the time at which the calculated standard deviation has the value of around 40\% of the viscosity 
+(as shown by the flat region in the running integral).
+The parameter b was found to be 0.52.
+Results at other temperatures show similar behavior.
+
+Figure~\ref{fig:ethanol-visc}.
+Upper panel: The calculated viscosity of ethanol using the proposed time-decomposition method
+and compared with experimental results.
+The agreement with experimental results are reasonably well.
+Experimental results: 
+Exp. a, ref~\cite{Jouyban.KJCE.29.812.2012};
+Exp. b, ref~\cite{Nain.JML.140.108.2008};
+Exp. c, ref~\cite{Bhuiyan.JML.138.139.2008};
+Exp. d, ref~\cite{Fonseca.JCED.52.1240.2007};
+Exp. e, ref~\cite{Taboas.JCED.51.940.2006};
+Exp. f, ref~\cite{Tojo.JCED.49.1590.2004}.
+Lower panel: Comparison of the calculated viscosities with $t_{cut}=700 ps$ and $t_{cut}=2000 ps$.
+Because of the average over multiple independent trajectories and the use of proper weighting function,
+the results are not sensitive to the $t_{cut}$ value.
+However, short $t_{cut}$ is preferred to save simulational time. 
+
+
+Figure~\ref{fig:ethanol-num}.
+The effect of number of independent trajectories on the calculated viscosity.
+Results are shown for ethanol at 298 K, behavior at other temperatures are similar.
+Upper left: the cumulative average of the running integral;
+upper right: the calculated standard deviation for corresponding cumulative average (same color code);
+lower left: the calculated standard deviation as a function of the number of independent trajectories at several time points;
+lower right: calculated viscosity as a function of the number of independent trajectories,
+the results with $1/t^{0.5}$ weight was also provided for comparison.
+All plots shown that the results  converge with 40 or more independent trajectories.
+
+
+Figure~\ref{fig:ethanol-length}.
+The effect of length of each independent trajectory on the calculated viscosity.
+Upper panel: the averaged running integral (over 100 independent trajectories) and the corresponding standard deviation;
+lower panel: the calculated viscosity as a function of the number of independent trajectories.
+When 4, 2 or 1 ns trajectories were used,
+the calculated results are close to each other
+and all converge with 40 trajectories although slightly larger fluctuations are seen when short trajectories were used.
+When 500 ps trajectories were used,
+the results show relatively large deviations from other results,
+indicating the trajectories are probably too short.
+
+Figure~\ref{fig:ethanol-boxsize}.
+The effect of simulation system size on the calculated viscosity.
+Systems containing 500, 1000 or 1500 ethanol molecules are used in the simulation.
+Results are averages over 100 independent trajectories in each case.
+The results show that,
+because pressure and viscosity are collective properties,
+the calculated running integral and the corresponding standard deviation are independent of the system size.
+The calculated viscosities are within 1\% deviation from each other.
+
+Figure~\ref{fig:bmim-ave}.
+The calculated results using the time-decomposition method for $[BMIM][Tf_2N]$ at different temperatures.
+All results are based on 100 independent trajectories.
+Top panel: the calculated averaged running integral (eq~\ref{eq:gk});
+middle panel: the calculated standard deviation (eq~\ref{eq:std_err});
+bottom panel: the large fluctuation in the very short time region in the averaged running integral,
+the same as the case in ethanol.
+
+Figure~\ref{fig:bmim-visc}.
+The calculated viscosity of $[BMIM][Tf_2N]$ using the proposed time-decomposition method
+and compared with experimental results.
+Upper panel: the calculated viscosities at high temperature were fitted to VTF or Arrhenius equations
+and extrapolated to low experimental temperatures.
+Due to the limited number of calculated viscosities and the uncertainty in the results,
+the extrapolated results likely include relatively large errors.
+Lower panel: the experimental results were fitted to VTF or Arrhenius equations
+and extrapolated to higher temperatures.
+The results using VTF equation is better than those using Arrhenius equation.
+Better agreement between calculated and experimental results are seen.
+Overall, the calculated viscosity agree with experimental results reasonably well.
+Experimental results: 
+Exp. a, ref~\cite{Gadzuric.JCED.57.1072.2012};
+Exp. b, ref~\cite{Katsuta.JCED.55.1588.2010};
+Exp. c, ref~\cite{Watanabe.JPCB.110.19593.2006};
+Exp. d, ref~\cite{Majer.GC.8.172.2006};
+Exp. e, ref~\cite{Watanabe.JPCB.109.6103.2005};
+Exp. f, ref~\cite{VanderNoot.JEC.568.167.2004}.
+
+Figure~\ref{fig:bmim-num}.
+The effect of number of independent trajectories on the calculated viscosity.
+Results are shown for $[BMIM][Tf_2N]$ at 350 K, behavior at other temperatures are similar.
+The calculated viscosity converged with about 30 or more independent trajectories.
+The results with $1/t^{0.5}$ weight were also provided for comparison.
+Different from the almost exact agreement in the case of ethanol,
+the difference between results with two weighting functions are slightly larger in this case
+(but still $<$ 3\%),
+likely due to the fact that the b parameters have values between 0.60-0.73
+whereas the b parameters are close 0.5 for ethanol.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \clearpage
 \begin{figure}
 \begin{center}
-\includegraphics[angle=0,width=6.0in]{/pscratch/yzhang19/20-viscosity/15-ethanol/03-nvt/visc-2.eps}
-\caption{Ethanol}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/03-nvt/visc-3.eps}
+\caption{}
 \label{fig:visc-longtraj}
 \end{center}
 \end{figure}
-
-
-
-\newpage
-\clearpage
-\begin{figure}
-\begin{center}
-\includegraphics[angle=0,width=6.0in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-3.eps}
-\caption{Ethanol}
-\label{fig:visc-multi}
-\end{center}
-\end{figure}
-
-\newpage
-\clearpage
-\begin{figure}
-\begin{center}
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-2.eps}
-\vspace {0.2in}
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-1.eps}
-\\
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-3.eps}
-\vspace {0.2in}
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-22.eps}
-\caption{Cutoff for fit.}
-\label{fig:cutoff-ethanol}
-\end{center}
-\end{figure}
-
-\newpage
-\clearpage
-\begin{figure}
-\begin{center}
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-1.eps}
-\\
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/350/visc-conv-1.eps}
-\caption{Viscosity convergence.}
-\label{fig:visc-conv}
-\end{center}
-\end{figure}
-
 
 \newpage
 \clearpage
 \begin{figure}
 \begin{center}
 \includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-2.eps}
-\caption{Ethanol}
-\label{fig:density-ethanol}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-1.eps}
+\caption{}
+\label{fig:density}
+\end{center}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%% Ethanol
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-1.eps}
+\caption{}
+\label{fig:ethanol-ave}
+\end{center}
+\end{figure}
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+%\includegraphics[angle=0,width=3.2in]{/afs/crc.nd.edu/user/y/yzhang19/work/20-viscosity/02-C4C1im/04-nvt-swarm/350/ave/viscosity-1.eps}
+%\\
+\includegraphics[angle=0,width=3.2in]{/afs/crc.nd.edu/user/y/yzhang19/work/20-viscosity/02-C4C1im/04-nvt-swarm/350/ave/viscosity-2.eps}
+\caption{}
+\label{fig:t2weight}
+\end{center}
+\end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-22.eps}
+\caption{}
+\label{fig:ethanol-2ps}
+\end{center}
+\end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-4.eps}
+\caption{}
+\label{fig:ethanol-fit}
 \end{center}
 \end{figure}
 
@@ -189,9 +886,27 @@ Computational resources were provided by the Center for Research Computing (CRC)
 \begin{center}
 \includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-1.eps}
 \\
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-2.eps}
-\caption{Ethanol}
-\label{fig:visc-ethanol}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-3.eps}
+\caption{}
+\label{fig:ethanol-visc}
+\end{center}
+\end{figure}
+
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-3.eps}
+\vspace{0.2in}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-4.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/standard_error/sigma-1.eps}
+\vspace{0.2in}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-1.eps}
+\caption{}
+\label{fig:ethanol-num}
 \end{center}
 \end{figure}
 
@@ -200,9 +915,38 @@ Computational resources were provided by the Center for Research Computing (CRC)
 \clearpage
 \begin{figure}
 \begin{center}
-\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-1.eps}
-\caption{Bmim-TF2N}
-\label{fig:density-bmim}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/viscosity-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-5.eps}
+\caption{}
+\label{fig:ethanol-length}
+\end{center}
+\end{figure}
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/viscosity-1.eps}
+\caption{}
+\label{fig:ethanol-boxsize}
+\end{center}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%% BMIM/TF2N
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-1.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-22.eps}
+\caption{}
+\label{fig:bmim-ave}
 \end{center}
 \end{figure}
 
@@ -214,11 +958,22 @@ Computational resources were provided by the Center for Research Computing (CRC)
 \includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-2.eps}
 \\
 \includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-1.eps}
-\caption{Top: BMIM-TF2N viscosity extrapolation from simulation data.
-Bottom: BMIM-TF2N viscosity extrapolation from experimental data.}
-\label{fig:visc-bmim}
+\caption{}
+\label{fig:bmim-visc}
 \end{center}
 \end{figure}
+
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/350/visc-conv-1.eps}
+\caption{}
+\label{fig:bmim-num}
+\end{center}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
