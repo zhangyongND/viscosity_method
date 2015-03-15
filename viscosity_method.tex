@@ -509,23 +509,18 @@ so the first 2 ps was ignored in the fitting.
 
 The calculated viscosities for $[BMIM][Tf_2N]$ as a function of temperature are shown in Figure~\ref{fig:bmim-visc}.
 To compare with the experimental results at relatively low temperature,
-the calculated viscosities were fitted to the Arrhenius equation
-\begin{equation}
-{\eta = \eta_0 exp(E/(RT))     }
-\label{eq:ARR}
-\end{equation}
-and the Vogel-Tamman-Fulcher (VTF) equation,
+the calculated viscosities were fitted to
+the Vogel-Tamman-Fulcher (VTF) equation
 \cite{VTF}
-respectively,
 \begin{equation}
 {\eta = A exp(B/(T-T_0))  }
 \label{eq:VTF}
 \end{equation}
 and extrapolated to experimental temperatures.
-In above equations,
-$\eta_0$, $E$, $A$, $B$ and $T_0$ are fitting parameters and $R$ is ideal gas molar constant.
-As shown in Figure~\ref{fig:bmim-visc} (upper panel),
-using both equations,
+In above equation,
+$A$, $B$ and $T_0$ are fitting parameters.
+The fitting results are shown as dashed line in Figure~\ref{fig:bmim-visc}.
+As shown in the figure,
 the extrapolated viscosities are systematically higher than experimental results.
 \cite{Gadzuric.JCED.57.1072.2012,
 Katsuta.JCED.55.1588.2010,
@@ -533,31 +528,13 @@ Watanabe.JPCB.110.19593.2006,
 Majer.GC.8.172.2006,
 Watanabe.JPCB.109.6103.2005,
 VanderNoot.JEC.568.167.2004}
-%The results are shown in the upper panel in Figure~\ref{fig:bmim-visc}.
-At high temperatures,
-the results from both Arrhenius and VTF equations are similar 
-and about twice of those from experiments.
-At low temperatures, the deviation from experiments becomes smaller
-and Arrhenius equation results behaves slightly better than VTF equation,
-deviation as small as 20\% is observed at 283 K.
-
-The correlation coefficients of the fitting are 0.9998 for Arrhenius equation and 0.9999 for VTF equation, respectively,
-suggesting reliable fits in both cases.
-However, because there are only four data points to fit two (Arrhenius) or three (VTF) parameters in the equations,
+Because there are only four data points to fit three parameters in the equations,
 not mentioning the uncertainty in the calculated results,
 it is very likely that the extrapolated results include large uncertainty.
 So in addition to extrapolate the calculated viscosity to experimental temperatures,
-the experimental data were also fit to above equations (or directly taken from literature when available
-\cite{Gadzuric.JCED.57.1072.2012,
-Katsuta.JCED.55.1588.2010,
-Majer.GC.8.172.2006,
-Watanabe.JPCB.109.6103.2005})
+the experimental data were also fit to the VTF equation 
 and extrapolated to simulational temperature range.
-The results are shown in the lower panel in Figure~\ref{fig:bmim-visc}.
-In this case,
-the results from VTF equation are clearly better than those from Arrhenius equation.
-Overlap between calculated and extrapolated experimental results are observed at high temperature,
-where the simulational results are likely more accurate.
+The results are also shown in Figure~\ref{fig:bmim-visc}.
 Overall, the simulated viscosities agree reasonably well with experimental measurements.
 
 Similar to the case of ethanol,
@@ -777,15 +754,12 @@ the same as the case in ethanol.
 Figure~\ref{fig:bmim-visc}.
 The calculated viscosity of $[BMIM][Tf_2N]$ using the proposed time-decomposition method
 and compared with experimental results.
-Upper panel: the calculated viscosities at high temperature were fitted to VTF or Arrhenius equations
+The calculated viscosities at high temperature were fitted to VTF equation
 and extrapolated to low experimental temperatures.
-Due to the limited number of calculated viscosities and the uncertainty in the results,
-the extrapolated results likely include relatively large errors.
-Lower panel: the experimental results were fitted to VTF or Arrhenius equations
-and extrapolated to higher temperatures.
-The results using VTF equation is better than those using Arrhenius equation.
-Better agreement between calculated and experimental results are seen.
-Overall, the calculated viscosity agree with experimental results reasonably well.
+The experimental results were also fitted to VTF equation
+and extrapolated to the high temperature range.
+The fitting results are shown in dashed lines.
+The calculated viscosity agree with experimental results reasonably well.
 Experimental results: 
 Exp. a, ref~\cite{Gadzuric.JCED.57.1072.2012};
 Exp. b, ref~\cite{Katsuta.JCED.55.1588.2010};
@@ -953,9 +927,7 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-2.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-1.eps}
+%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-3.eps}
 \caption{}
 \label{fig:bmim-visc}
 \end{center}
