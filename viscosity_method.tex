@@ -70,9 +70,12 @@ Keywords: Green-Kubo, Ionic Liquids, standard deviation, system size effect
 \newpage
 \section{Introduction}
 
-There have been a number of different atomistic simulation methods developed for computing the shear viscosity of liquids {\bf Give some classic references: Original Green-Kobo papers, SLLOD papers, review paper from Peter Cummings, RNEMD Muller-Plathe, MIR Arya and Maginn - J. Chem. Phys., Vol. 113, No. 6}.
-\cite{
+There have been a number of different atomistic simulation methods developed for computing the shear viscosity of liquids.
+\cite{ComputerSimulationOfLiquids,
+Morriss.PRA.30.1528.1984,
 Cummings.IECR.31.1237.1992,	% review
+Muller-Plathe.PRE.59.4894.1999,
+Maginn.JCP.113.2079.2000,
 Margulis.ACR.40.1097.2007,	% review
 Mu.JML.193.262.2014,		% review
 Hummer.JPCB.108.15873.2004,	% size effect
@@ -86,12 +89,11 @@ Lee.JPCB.118.2712.2014,		% free volume
 Yethiraj.JPCL.5.2670.2014	% SAPT
 }
 Due to its simplicity, 
-the Green-Kubo relation based on equilibrium molecular dynamics (MD) simulations is perhaps the most widely used method. {\bf cite}. 
-%\cite{}
+the Green-Kubo relation based on equilibrium molecular dynamics (MD) simulations is perhaps the most widely used method.
+\cite{ComputerSimulationOfLiquids}
 
 In the Green-Kubo approach,
 the shear viscosity is calculated from the integral over time of the pressure tensor autocorrelation function 
-\cite{ComputerSimulationOfLiquids}
 \begin{equation}
 {\eta = {V \over k_B T } \int_0 ^{\infty}{\langle P_{\alpha\beta}(t) \cdot P_{\alpha\beta}(0) \rangle \ dt} }
 \label{eq:gk}
@@ -173,13 +175,19 @@ To reduce the noise at long times,
 Rey-Castro and Vega applied a weighting factor of $1/t^2$ in the fitting.
 \cite{Rey-Castro.JPC.B.110.14426.2006}
 
-Despite these developments, the reliable calculation of shear viscosity from a Green-Kubo integral is still a challenging task. First, the methods used in the literature for estimating the long time limit of the integral are arbitrary and depending on the data analysis procedure used, different shear viscosities can be obtained for exactly the same system. Second, it is not clear from these approaches how one determines when a converged value of the shear viscosity is obtained. This problem is exacerbated for high viscosity liquids, where statistics are usually poor within accessible simulation time scales. Ionic liquids (ILs) are an examples of this kind of high viscosity liquid. ILs are defined as salts with melting points below 100 $^\circ$C.
+Despite these developments, the reliable calculation of shear viscosity from a Green-Kubo integral is still a challenging task. First, the methods used in the literature for estimating the long time limit of the integral are arbitrary and depending on the data analysis procedure used, different shear viscosities can be obtained for exactly the same system. Second, it is not clear from these approaches how one determines when a converged value of the shear viscosity is obtained. This problem is exacerbated for high viscosity liquids, where statistics are usually poor within accessible simulation time scales. Ionic liquids (ILs) are examples of this kind of high viscosity liquid. ILs are defined as salts with melting points below 100 $^\circ$C.
 Due to their unique properties such as low vapor pressure, large liquid phase range and nonflammibility,
-ILs have been extensively studied for several industrial uses. {\bf Add earlier references}. 
+ILs have been extensively studied for several industrial uses. 
+\cite{Maginn.JPCL.1.3494.2010,  % AHA
+Atilhan.IECR.52.16774.2013,     % high P
+Blahusiak.JCT.72.54.2014,       % mixture
+Dutt.JPCB.118.13244.2014,       % Tau_rot
+Garrett.JPC.Lett.5.1541.2014}   % 2DIR
+
 
 In the current work, we introduce a time-decomposition method for the reliable calculation of shear viscosity 
 from equilibrium MD simulations. The method provides an objective means of computing shear viscosity from MD trajectories, thereby eliminating the subjective variability inherent in previous approaches. The method also minimizes uncertainties due to the long time tail of the pressure tensor autocorrelation function.
-The procedure is demonstrated by applying to a low viscosity molecular solvent ethanol and relatively high viscosity IL, 
+The procedure is demonstrated by applying to a low viscosity molecular solvent ethanol and a relatively high viscosity IL, 
 1-n-butyl-3-methylimidazolium bis(trifluoromethane-sulfonyl)imide ($[BMIM][Tf_2N]$).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -302,7 +310,7 @@ so that for systems with high viscosity,
 the weight becomes negligible before reaching the plateau region
 and the viscosity is significantly underestimated. Instead of weighting the data by $1/t^2$ as was done by Rey-Castro and coworkers,
 \cite{Rey-Castro.JPC.B.110.14426.2006}
-the results were fit with a weighting function $1/t^b$ where $b$ is found by fitting the standard deviation using eq~ \ref{eq:power}.
+the averaged running integral were fit with a weighting function $1/t^b$ where $b$ is found by fitting the standard deviation using eq~ \ref{eq:power}.
 With this weighting function,
 the short time data points that have higher accuracy have more weight in the fitting
 and the less accurate data points at long times have less weight.
@@ -442,28 +450,43 @@ large fluctuations were observed in the first 2 ps of the running integral (as s
 so the first 2 ps was ignored in the fitting.
 
 The calculated viscosities for $[BMIM][Tf_2N]$ as a function of temperature are shown in Figure~\ref{fig:bmim-visc}.
-To compare with the experimental results at relatively low temperature,
-the calculated viscosities were fitted to
-the Vogel-Tamman-Fulcher (VTF) equation
-\cite{VTF}
-\begin{equation}
-{\eta = A exp(B/(T-T_0))  }
-\label{eq:VTF}
-\end{equation}
-and extrapolated to experimental temperatures.
-In the above equation,
-$A$, $B$ and $T_0$ are fitting parameters.
-The fitting results are shown as a dashed line in Figure~\ref{fig:bmim-visc}.
-As shown in the figure,
-the extrapolated viscosities are systematically higher than experimental results.
+%To compare with the experimental results at relatively low temperature,
+%the calculated viscosities were fitted to
+%the Vogel-Tamman-Fulcher (VTF) equation
+%\cite{VTF}
+%\begin{equation}
+%{\eta = A exp(B/(T-T_0))  }
+%\label{eq:VTF}
+%\end{equation}
+%and extrapolated to experimental temperatures.
+%In the above equation,
+%$A$, $B$ and $T_0$ are fitting parameters.
+%The fitting results are shown as a dashed line in Figure~\ref{fig:bmim-visc}.
+%As shown in the figure,
+%the extrapolated viscosities are systematically higher than experimental results.
+%\cite{Gadzuric.JCED.57.1072.2012,
+%Katsuta.JCED.55.1588.2010,
+%Watanabe.JPCB.110.19593.2006,
+%Majer.GC.8.172.2006,
+%Watanabe.JPCB.109.6103.2005,
+%VanderNoot.JEC.568.167.2004}
+In order to compare simulation and experimental viscosity results, the experimental data 
 \cite{Gadzuric.JCED.57.1072.2012,
 Katsuta.JCED.55.1588.2010,
 Watanabe.JPCB.110.19593.2006,
 Majer.GC.8.172.2006,
 Watanabe.JPCB.109.6103.2005,
 VanderNoot.JEC.568.167.2004}
-In order to compare simulation and experimental viscosity results, the experimental data were fit to the VTF equation and  
+were fit to the Vogel-Tamman-Fulcher (VTF) equation 
+\cite{VTF}
+\begin{equation}
+{\eta = A exp(B/(T-T_0))  }
+\label{eq:VTF}
+\end{equation}
+and  
 extrapolated to the simulation temperature range.
+In the above equation,
+$A$, $B$ and $T_0$ are fitting parameters.
 The results are shown in Figure~\ref{fig:bmim-visc}.
 Overall, the simulated viscosities agree reasonably well with extrapolated experimental data. Note that one could also fit the simulation data to the VTF equation and extrapolate to lower temperatures, but because there are only four simulation data points to fit three parameters in the VTF equation, 
 the extrapolated results include too large of an uncertainty to be reliable.
@@ -483,7 +506,7 @@ However, considering the deviation from experimental results,
 these differences are negligible. This suggests that if one has not performed the necessary test runs to estimate the parameter $b$, the 
 $1/t^{0.5}$ weighting function can be used without introducing significant error.
 
-Finally we note that for high viscosity liquids, it is very important to use a reasonable form of the weighting function when fitting eq~\ref{eq:visc_fit} to the running integral. For example, Figure~\ref{fig:t2weight} shows a comparison of the viscosities of [BMIM][Tf$_2$N] at 350 K estimated using the  $1/t^2$  and the $1/t^b$ weighting. Use of the $1/t^2$ weighting function severely underestimates the viscosity, while the milder weighting function proposed here gives a much more reasonable fit to the simulation data. 
+Finally we note that for high viscosity liquids, it is very important to use a reasonable form of the weighting function when fitting eq~\ref{eq:visc_fit} to the running integral. For example, Figure~\ref{fig:t2weight} shows a comparison of the viscosities of $[BMIM][Tf_2N]$ at 350 K estimated using the  $1/t^2$  and the $1/t^b$ weighting. Use of the $1/t^2$ weighting function severely underestimates the viscosity, while the milder weighting function proposed here gives a much more reasonable fit to the simulation data. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Concluding Remarks}
@@ -585,14 +608,6 @@ The calculated averaged running integral (eq~\ref{eq:gk})
 and standard deviation (eq~\ref{eq:std_err}) 
 from 100 independent 5 ns long equilibrium MD trajectories for ethanol at different temperatures.
 
-Figure~\ref{fig:t2weight}.
-Example results of fitting the running integral to the double exponential function (eq~\ref{eq:visc_fit}) with a $1/t^2$ weight.
-The running integral is averaged over 100 independent trajectories generated for $[BMIM][Tf_2N]$ at 350 K,
-each trajectory is 7 ns long.
-The weighting function decays too fast and the fitting result significantly underestimates the contribution from long time scales.
-A weighting function of the form $1/t^b$ is suggested in this work,
-where $b$ is derived by fitting the calculated standard deviation to a power function $\sigma(t) = Ae^b$,
-which was found to work well even for high viscosity liquid.
 
 Figure~\ref{fig:ethanol-2ps}.
 The large fluctuation at very short time in the calculated running integral of ethanol.
@@ -669,9 +684,7 @@ the same as the case in ethanol.
 Figure~\ref{fig:bmim-visc}.
 The calculated viscosity of $[BMIM][Tf_2N]$ using the proposed time-decomposition method
 and compared with experimental results.
-The calculated viscosities at high temperature were fitted to VTF equation
-and extrapolated to low experimental temperatures.
-The experimental results were also fitted to VTF equation
+The experimental results were fitted to VTF equation
 and extrapolated to the high temperature range.
 The fitting results are shown in dashed lines.
 The calculated viscosity agree with experimental results reasonably well.
@@ -694,6 +707,14 @@ the difference between results with two weighting functions are slightly larger 
 likely due to the fact that the b parameters have values between 0.60-0.73
 whereas the b parameters are close 0.5 for ethanol.
 
+Figure~\ref{fig:t2weight}.
+Example results of fitting the running integral to the double exponential function (eq~\ref{eq:visc_fit}) with a $1/t^2$ weight.
+The running integral is averaged over 100 independent trajectories generated for $[BMIM][Tf_2N]$ at 350 K,
+each trajectory is 7 ns long.
+The weighting function decays too fast and the fitting result significantly underestimates the contribution from long time scales.
+A weighting function of the form $1/t^b$ is suggested in this work,
+where $b$ is derived by fitting the calculated standard deviation to a power function $\sigma(t) = Ae^b$,
+which was found to work well even for high viscosity liquid.
 
 
 
@@ -702,7 +723,7 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/03-nvt/visc-3.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/03-nvt/visc-3.eps}
 \caption{}
 \label{fig:visc-longtraj}
 \end{center}
@@ -712,9 +733,9 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-2.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-1.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/density-1.eps}
 \caption{}
 \label{fig:density}
 \end{center}
@@ -726,9 +747,9 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-2.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-1.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-1.eps}
 \caption{}
 \label{fig:ethanol-ave}
 \end{center}
@@ -738,18 +759,7 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/afs/crc.nd.edu/user/y/yzhang19/work/20-viscosity/02-C4C1im/04-nvt-swarm/350/ave/viscosity-2.eps}
-\caption{}
-\label{fig:t2weight}
-\end{center}
-\end{figure}
-
-
-\newpage
-\clearpage
-\begin{figure}
-\begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-22.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-22.eps}
 \caption{}
 \label{fig:ethanol-2ps}
 \end{center}
@@ -760,7 +770,7 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-4.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-4.eps}
 \caption{}
 \label{fig:ethanol-fit}
 \end{center}
@@ -771,9 +781,9 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-1.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-3.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-1.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-ethanol-3.eps}
 \caption{}
 \label{fig:ethanol-visc}
 \end{center}
@@ -785,13 +795,13 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-3.eps}
-%\vspace{0.2in}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-4.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/standard_error/sigma-1.eps}
-%\vspace{0.2in}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-1.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/viscosity-3.eps}
+\vspace{0.2in}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/visc-4.eps}
+\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/ave/standard_error/sigma-1.eps}
+\vspace{0.2in}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-1.eps}
 \caption{}
 \label{fig:ethanol-num}
 \end{center}
@@ -802,9 +812,9 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/viscosity-2.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-5.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/viscosity-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/04-nvt-swarm/298/visc-conv-5.eps}
 \caption{}
 \label{fig:ethanol-length}
 \end{center}
@@ -814,7 +824,7 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/viscosity-1.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/15-ethanol/viscosity-1.eps}
 \caption{}
 \label{fig:ethanol-boxsize}
 \end{center}
@@ -827,11 +837,11 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-2.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-1.eps}
-%\\
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-22.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-2.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-1.eps}
+\\
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/visc-22.eps}
 \caption{}
 \label{fig:bmim-ave}
 \end{center}
@@ -842,7 +852,7 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-3.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/post_analysis_BmimTf2n_Ethanol/visc-bmim-4.eps}
 \caption{}
 \label{fig:bmim-visc}
 \end{center}
@@ -853,11 +863,22 @@ whereas the b parameters are close 0.5 for ethanol.
 \clearpage
 \begin{figure}
 \begin{center}
-%\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/350/visc-conv-1.eps}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/350/visc-conv-1.eps}
 \caption{}
 \label{fig:bmim-num}
 \end{center}
 \end{figure}
+
+\newpage
+\clearpage
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0,width=3.2in]{/pscratch/yzhang19/20-viscosity/02-C4C1im/04-nvt-swarm/350/ave/viscosity-2.eps}
+\caption{}
+\label{fig:t2weight}
+\end{center}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
